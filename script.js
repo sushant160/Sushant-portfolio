@@ -73,6 +73,13 @@ document.getElementById('contact-form').addEventListener('submit', function(even
     
     console.log("🎯 Form submitted!");
     
+    // Debug: Check form data
+    const formData = new FormData(this);
+    console.log("📝 Form Data:");
+    for (let [key, value] of formData.entries()) {
+        console.log(key + ": " + value);
+    }
+    
     const submitBtn = this.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
     
@@ -82,8 +89,8 @@ document.getElementById('contact-form').addEventListener('submit', function(even
     
     // Send email using EmailJS
     emailjs.sendForm(
-        'service_3b1w17n',
-        'template_pm38sl7', 
+        'service_3b1w17n',      // Your Service ID
+        'template_pm38sl7',     // Your Template ID
         this
     )
     .then(function(response) {
@@ -100,7 +107,62 @@ document.getElementById('contact-form').addEventListener('submit', function(even
     });
 });
 
-// Projects Slider - SINGLE VERSION
+// Professional Projects Slider - WITH AUTO-SLIDE REMOVED
+document.addEventListener('DOMContentLoaded', function() {
+    const projectsSlider = document.querySelector('.projects-slider');
+    const projectCards = document.querySelectorAll('.detailed-project');
+    const prevArrow = document.querySelector('.project-arrow-left');
+    const nextArrow = document.querySelector('.project-arrow-right');
+    
+    if (projectsSlider && projectCards.length > 0) {
+        let currentIndex = 0;
+        const totalProjects = projectCards.length;
+        
+        // Next project
+        nextArrow.addEventListener('click', function() {
+            if (currentIndex < totalProjects - 1) {
+                currentIndex++;
+                updateSlider();
+            }
+        });
+        
+        // Previous project
+        prevArrow.addEventListener('click', function() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateSlider();
+            }
+        });
+        
+        function updateSlider() {
+            projectsSlider.style.transform = `translateX(-${currentIndex * 100}%)`;
+            
+            // Update arrow states
+            prevArrow.disabled = currentIndex === 0;
+            nextArrow.disabled = currentIndex === totalProjects - 1;
+            
+            // Update active states
+            projectCards.forEach((card, index) => {
+                card.classList.toggle('active', index === currentIndex);
+            });
+        }
+        
+        // Initial state
+        updateSlider();
+        
+        // ❌ AUTO-SLIDE REMOVED - Yeh line comment kardi
+        // setInterval(function() {
+        //     if (currentIndex < totalProjects - 1) {
+        //         currentIndex++;
+        //     } else {
+        //         currentIndex = 0;
+        //     }
+        //     updateSlider();
+        // }, 7000);
+    }
+});
+
+// Uber-style Projects Slider with Image Space - WITH AUTO-SLIDE REMOVED
 document.addEventListener('DOMContentLoaded', function() {
     const projects = document.querySelectorAll('.uber-style-project');
     const prevArrow = document.querySelector('.prev-arrow');
@@ -110,22 +172,111 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentIndex = 0;
     const totalProjects = projects.length;
     
-    function showProject(index) {
-        projects.forEach(project => project.classList.remove('active'));
-        projects[index].classList.add('active');
-        currentIndex = index;
+    // Show first project, hide others
+    projects.forEach((project, index) => {
+        if (index !== 0) {
+            project.style.display = 'none';
+        }
+    });
+    
+    // Update counter
+    function updateCounter() {
         projectCounter.textContent = `${currentIndex + 1}/${totalProjects}`;
     }
     
+    // Show project with animation
+    function showProject(index) {
+        // Hide current project with fade out
+        projects[currentIndex].style.display = 'none';
+        
+        // Show new project with fade in
+        projects[index].classList.remove('active');
+        void projects[index].offsetWidth; // Trigger reflow
+        projects[index].style.display = 'block';
+        projects[index].classList.add('active');
+        
+        currentIndex = index;
+        updateCounter();
+    }
+    
+    // Next project
     nextArrow.addEventListener('click', function() {
         let nextIndex = (currentIndex + 1) % totalProjects;
         showProject(nextIndex);
     });
     
+    // Previous project
     prevArrow.addEventListener('click', function() {
         let prevIndex = (currentIndex - 1 + totalProjects) % totalProjects;
         showProject(prevIndex);
     });
     
-    showProject(0);
+    // ❌ AUTO-SLIDE REMOVED - Yeh line comment kardi
+    // setInterval(function() {
+    //     let nextIndex = (currentIndex + 1) % totalProjects;
+    //     showProject(nextIndex);
+    // }, 8000);
+    
+    // Initial counter update
+    updateCounter();
+});
+// Uber-style Projects Slider - CORRECTED VERSION
+document.addEventListener('DOMContentLoaded', function() {
+    const projects = document.querySelectorAll('.uber-style-project');
+    const prevArrow = document.querySelector('.prev-arrow');
+    const nextArrow = document.querySelector('.next-arrow');
+    const projectCounter = document.querySelector('.project-counter');
+    
+    let currentIndex = 0;
+    const totalProjects = projects.length;
+    
+    // Pehle sab projects ko hide karo, sirf first show karo
+    projects.forEach((project, index) => {
+        if (index === 0) {
+            project.classList.add('active');
+        } else {
+            project.classList.remove('active');
+        }
+    });
+    
+    // Update counter
+    function updateCounter() {
+        projectCounter.textContent = `${currentIndex + 1}/${totalProjects}`;
+    }
+    
+    // Show project
+    function showProject(index) {
+        // Sab projects hide karo
+        projects.forEach(project => {
+            project.classList.remove('active');
+        });
+        
+        // Sirf selected project show karo
+        projects[index].classList.add('active');
+        currentIndex = index;
+        updateCounter();
+    }
+    
+    // Next project
+    nextArrow.addEventListener('click', function() {
+        let nextIndex = (currentIndex + 1) % totalProjects;
+        showProject(nextIndex);
+    });
+    
+    // Previous project
+    prevArrow.addEventListener('click', function() {
+        let prevIndex = (currentIndex - 1 + totalProjects) % totalProjects;
+        showProject(prevIndex);
+    });
+    
+    // Initial counter update
+    updateCounter();
+});
+// Force Contact link to scroll to Projects
+document.querySelector('a[href="#contact"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    window.scrollTo({
+        top: document.getElementById('projects').offsetTop - 80,
+        behavior: 'smooth'
+    });
 });
